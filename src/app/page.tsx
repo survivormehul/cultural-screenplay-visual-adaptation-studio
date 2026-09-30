@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Header } from "@/components/Header";
+import React, { useState, useEffect } from "react";
+import { Header, AiServerStatus } from "@/components/Header";
 import { CultureSettingsCard } from "@/components/CultureSettingsCard";
 import { WorkflowSteps, WorkflowStageItem } from "@/components/WorkflowSteps";
 import { ScreenplayInputSection } from "@/components/ScreenplayInputSection";
@@ -37,6 +37,10 @@ export default function Home() {
   const [rawScreenplay, setRawScreenplay] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<ScreenplayFileMeta | null>(null);
 
+  // Gemini AI Server Status & Mode Switcher
+  const [aiConfig, setAiConfig] = useState<AiServerStatus | null>(null);
+  const [aiMode, setAiMode] = useState<"live" | "demo">("live");
+
   // Domain Pipeline Entities
   const [parsedScreenplay, setParsedScreenplay] = useState<Screenplay | null>(null);
   const [adaptationPlan, setAdaptationPlan] = useState<AdaptationPlan | null>(null);
@@ -53,6 +57,29 @@ export default function Home() {
     type: "info" | "success" | "warning";
     text: string;
   } | null>(null);
+
+  // Discover server-side Gemini AI configuration on load
+  useEffect(() => {
+    fetch("/api/status")
+      .then((res) => res.json())
+      .then((data: AiServerStatus) => {
+        setAiConfig(data);
+        if (data.configured) {
+          setAiMode("live");
+        } else {
+          setAiMode("demo");
+        }
+      })
+      .catch(() => {
+        setAiConfig({
+          configured: false,
+          provider: "Deterministic Fallback",
+          textModel: "gemini-2.5-flash",
+          imageModel: "gemini-3.1-flash-image",
+        });
+        setAiMode("demo");
+      });
+  }, []);
 
   // STAGE 1: INGESTION & PARSING
   const handleFileSelected = (file: File) => {
@@ -141,7 +168,56 @@ export default function Home() {
   const handleApproveStructure = async () => {
     if (!parsedScreenplay) return;
     setStructureApproved(true);
+    setIsProcessing(true);
 
+    if (aiMode === "live" && aiConfig?.configured) {
+      setStatusMessage({
+        type: "info",
+        text: "⚡ Gemini AI is synthesizing cultural adaptation suggestions across all 8 dimensions...",
+      });
+
+      try {
+        const res = await fetch("/api/adapt/plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            screenplay: parsedScreenplay,
+            profile: ACTIVE_CULTURAL_PROFILE,
+          }),
+        });
+
+        const planData = await res.json();
+        if (!res.ok) {
+          throw new Error(planData.error || "Failed to generate adaptation plan with Gemini");
+        }
+
+        setAdaptationPlan(planData);
+        const initialDecisions: Record<string, AdaptationDecision> = {};
+        for (const s of planData.suggestions) {
+          initialDecisions[s.id] = {
+            suggestionId: s.id,
+            status: s.status,
+            decidedAt: new Date().toISOString(),
+          };
+        }
+        setDecisions(initialDecisions);
+        setActiveStage("plan");
+        setIsProcessing(false);
+        setStatusMessage({
+          type: "success",
+          text: `✓ Structure approved. Cultural Adaptation Plan generated via Gemini (${planData.totalSuggestions} Marwari dialect & cultural adjustments).`,
+        });
+        return;
+      } catch (err: unknown) {
+        console.warn("Live Gemini adaptation plan failed, falling back to deterministic engine:", err);
+        setStatusMessage({
+          type: "warning",
+          text: `Live Gemini plan generation notice (${err instanceof Error ? err.message : "Error"}). Loaded deterministic Marwari adaptation plan as fallback.`,
+        });
+      }
+    }
+
+    // Fallback to deterministic provider
     const provider = new DemoAdaptationProvider();
     const plan = await provider.generatePlan(parsedScreenplay, ACTIVE_CULTURAL_PROFILE);
     setAdaptationPlan(plan);
@@ -158,6 +234,7 @@ export default function Home() {
     setDecisions(initialDecisions);
 
     setActiveStage("plan");
+    setIsProcessing(false);
     setStatusMessage({
       type: "success",
       text: `✓ Structure approved. Cultural Adaptation Plan generated with ${plan.totalSuggestions} Marwari dialect and cultural adjustments.`,
@@ -267,7 +344,7 @@ export default function Home() {
     });
   };
 
-  const handleGenerateAdaptedScreenplay = () => {
+  const handleGenerateAdaptedScreenplay = async () => {
     if (!parsedScreenplay || !adaptationPlan) return;
 
     const hasPending = adaptationPlan.suggestions.some(
@@ -281,9 +358,52 @@ export default function Home() {
       return;
     }
 
+    setIsProcessing(true);
+
+    if (aiMode === "live" && aiConfig?.configured) {
+      setStatusMessage({
+        type: "info",
+        text: "⚡ Gemini AI is synthesizing the final adapted screenplay using your approved cultural decisions...",
+      });
+
+      try {
+        const res = await fetch("/api/adapt/screenplay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            screenplay: parsedScreenplay,
+            plan: adaptationPlan,
+            decisions,
+          }),
+        });
+
+        const adaptedData = await res.json();
+        if (!res.ok) {
+          throw new Error(adaptedData.error || "Failed to generate adapted screenplay with Gemini");
+        }
+
+        setAdaptedScreenplay(adaptedData);
+        setActiveStage("adapted");
+        setIsProcessing(false);
+
+        setStatusMessage({
+          type: "success",
+          text: `✓ Adapted screenplay generated via Gemini in Marwari (Devanagari) applying ${adaptedData.totalApprovedAdaptations} approved cultural adjustments.`,
+        });
+        return;
+      } catch (err: unknown) {
+        console.warn("Live Gemini screenplay generation failed, using deterministic synthesizer:", err);
+        setStatusMessage({
+          type: "warning",
+          text: `Live Gemini screenplay generation notice (${err instanceof Error ? err.message : "Error"}). Synthesized via deterministic engine.`,
+        });
+      }
+    }
+
     const adapted = adaptScreenplay(parsedScreenplay, adaptationPlan, decisions);
     setAdaptedScreenplay(adapted);
     setActiveStage("adapted");
+    setIsProcessing(false);
 
     setStatusMessage({
       type: "success",
@@ -294,11 +414,39 @@ export default function Home() {
   // STAGE 5 -> 6: VISUAL GENERATION
   const handleProceedToVisuals = async () => {
     if (!adaptedScreenplay || !parsedScreenplay) return;
+    setIsProcessing(true);
+
+    try {
+      const res = await fetch("/api/visuals/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          adaptedScreenplay,
+          originalScreenplay: parsedScreenplay,
+        }),
+      });
+
+      if (res.ok) {
+        const pkgs = await res.json();
+        setVisualPackages(pkgs);
+        setActiveStage("visuals");
+        setIsProcessing(false);
+
+        setStatusMessage({
+          type: "success",
+          text: `✓ Visual concept prompt packages generated (${pkgs.scenePackages.length} scene framing, ${pkgs.characterPackages.length} character continuity). Ready for Gemini image synthesis.`,
+        });
+        return;
+      }
+    } catch (e) {
+      console.warn("Server visual package fetch failed, falling back to local engine:", e);
+    }
 
     const visualProvider = new DemoImageGenerationProvider();
     const pkgs = await visualProvider.generateAll(adaptedScreenplay, parsedScreenplay);
     setVisualPackages(pkgs);
     setActiveStage("visuals");
+    setIsProcessing(false);
 
     setStatusMessage({
       type: "success",
@@ -442,6 +590,9 @@ export default function Home() {
       <Header
         onResetProject={handleResetProject}
         onLoadDemoProject={handleLoadDemoProject}
+        aiStatus={aiConfig}
+        aiMode={aiMode}
+        onToggleAiMode={setAiMode}
       />
 
       <main className="mx-auto max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8 w-full space-y-6">
@@ -564,6 +715,8 @@ export default function Home() {
             <VisualConceptBoard
               visualPackages={visualPackages}
               onProceedToContinuity={handleProceedToContinuity}
+              onUpdateVisualPackages={setVisualPackages}
+              isGeminiConfigured={Boolean(aiConfig?.configured && aiMode === "live")}
             />
           )}
 
@@ -598,7 +751,9 @@ export default function Home() {
             Cultural Screenplay & Visual Adaptation Studio · Target: Marwari (Rural Jodhpur, Devanagari)
           </div>
           <div>
-            Complete Local Functional MVP · Deterministic Demo Mode
+            {aiConfig?.configured && aiMode === "live"
+              ? "Live Gemini AI Mode (2.5 Flash / 3.1 Flash Image)"
+              : "Deterministic Demo Mode (Local Synthesizer)"}
           </div>
         </div>
       </footer>

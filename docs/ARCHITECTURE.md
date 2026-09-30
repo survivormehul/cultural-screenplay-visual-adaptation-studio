@@ -1,53 +1,118 @@
-# Cultural Screenplay & Visual Adaptation Studio — Architecture
+# Cultural Screenplay & Visual Adaptation Studio — System Architecture
 
-This document describes the software architecture, domain model, and pipeline lifecycle of the **Cultural Screenplay & Visual Adaptation Studio**.
-
----
-
-## 1. System Overview & Architecture Flow
-
-The studio is designed as an enterprise-grade AI-assisted screenplay adaptation environment. Its core purpose is to adapt scripts into specific Indian cultural contexts, dialects, and visual settings while maintaining:
-- **Narrative Integrity:** Preserving core character arcs, scene pacing, and thematic stakes.
-- **Canonical Traceability:** Using immutable canonical identifiers across scenes (`SCN-XXX`), characters (`CHR-XXX`), locations (`LOC-XXX`), props (`PROP-XXX`), and adaptations (`ADP-XXX`).
-- **Human-in-the-Loop Governance:** Requiring editorial approval before dialect adjustments are materialized into the adapted screenplay.
-- **Visual & Continuity Synthesis:** Generating structured visual framing packages and verifying narrative continuity.
-
-### Architecture Dataflow
-
-```
-User
-  ↓
-Next.js UI
-  ↓
-Workflow State
-  ↓
-Screenplay Parser
-  ↓
-Canonical Domain Model
-  ↓
-Cultural Adaptation Provider
-  ↓
-Human Approval Gate
-  ↓
-Adapted Screenplay
-  ↓
-Visual Prompt Provider
-  ↓
-Continuity Engine
-  ↓
-Export Service
-```
+This document details the multi-tier system architecture, network boundaries, canonical data models, pipeline state machine, and provider abstraction layers of the **Cultural Screenplay & Visual Adaptation Studio**.
 
 ---
 
-## 2. Canonical Identity Model
+## 1. System Architecture & Network Boundaries
 
-Entity identification strictly forbids using transient strings or character names as keys. The canonical schema uses stable, zero-padded identifiers:
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                          BROWSER CLIENT TIER                           │
+│                                                                        │
+│  Next.js 16 UI (React 19 / TypeScript / Tailwind CSS v4)               │
+│  ├── 8-Stage Interactive Workflow Controller                           │
+│  ├── In-Memory Project State Management                                │
+│  ├── Side-by-Side Dual English / Devanagari Viewport                   │
+│  ├── Human Approval Governance Panel                                   │
+│  └── Visual Concept Board & Image Gallery                              │
+│                                                                        │
+│  * ZERO client-side API keys · ZERO client-side model imports *        │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTP JSON Requests (Secure Boundary)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                     SERVER-SIDE API ROUTE TIER                         │
+│                                                                        │
+│  Next.js App Router Route Handlers                                     │
+│  ├── GET  /api/status               (Reports AI config & model names)  │
+│  ├── POST /api/adapt/plan           (Cultural Plan Generation)         │
+│  ├── POST /api/adapt/screenplay     (Approval-gated Script Synthesis)  │
+│  ├── POST /api/visuals/packages     (Canonical 35mm Prompt Packages)   │
+│  └── POST /api/visuals/generate-image (Single & Batch Gemini Images)   │
+│                                                                        │
+│  Enforcements:                                                         │
+│  • Request Schema Validation                                           │
+│  • Server-Side Approval Gate Checking (`APPROVAL_GATE_LOCKED`)          │
+│  • Sanitized Error Boundaries (Never exposes internal keys)            │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Server-Only Internal Call
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   SERVER-ONLY PROVIDER ABSTRACTIONS                    │
+│                                                                        │
+│  `import "server-only";`                                               │
+│  ├── Gemini Client (`src/lib/gemini/client.ts`)                        │
+│  ├── GeminiAdaptationProvider (`src/lib/adaptation/`)                  │
+│  ├── GeminiImageGenerationProvider (`src/lib/visuals/`)                │
+│  └── Deterministic Fallback Providers (DemoAdaptation & DemoVisual)    │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTPS (API Key Authenticated)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                      EXTERNAL FOUNDATION MODELS                        │
+│                                                                        │
+│  Google Gemini API (`@google/genai`)                                   │
+│  ├── Text Model: `gemini-2.5-flash`   (Cultural Plan & Devanagari)     │
+│  └── Image Model: `gemini-3.1-flash-image` (35mm Photorealistic Visuals)│
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 2. End-to-End Pipeline Lifecycle
+
+The dataflow transitions through 8 strictly sequential stages:
+
+```text
+Screenplay Input (.txt / pasted string)
+   │
+   ▼
+1. Deterministic Parser (`src/lib/parser/screenplayParser.ts`)
+   │
+   ▼
+2. Canonical Entities (`SCN-xxx`, `CHR-xxx`, `LOC-xxx`, `PROP-xxx`, `COST-xxx`)
+   │
+   ▼
+3. Cultural Adaptation Engine (`/api/adapt/plan` · Gemini 2.5 Flash)
+   │  - Analyzes dialogue, attire, architecture, customs across 8 dimensions
+   │  - Outputs `ADP-xxx` suggestions with authentic Devanagari regional phrasing
+   │
+   ▼
+4. Human Decisions & Approval Gate (`src/components/ApprovalPanel.tsx`)
+   │  - Human reviews every suggestion: Approved, Edited, or Rejected
+   │  - HARD EXECUTION GATE: Screenplay generation blocked if any item is pending
+   │
+   ▼
+5. Adapted Screenplay Engine (`/api/adapt/screenplay` · Gemini 2.5 Flash)
+   │  - Synthesizes authentic Marwari Devanagari dialogue & adapted action lines
+   │  - Preserves exact scene numbers, canonical IDs, and dramatic intent
+   │
+   ▼
+6. Visual Production Pack (`/api/visuals/*` · Gemini 3.1 Flash Image)
+   │  - Programmatically constructs 35mm anamorphic camera and lighting prompts
+   │  - Generates photorealistic Scene Looks and Character Bible portraits
+   │
+   ▼
+7. Automated Continuity Engine (`src/lib/continuity/continuityChecker.ts`)
+   │  - 10+ programmatic assertions checking character, costume, and prop continuity
+   │  - Flags items requiring explicit native-speaker sign-off
+   │
+   ▼
+8. Export Engine (`src/lib/export/exportService.ts`)
+   │  - Generates 4 production files: Screenplay (.txt), Plan (.json), Report (.txt), Full Archive (.json)
+```
+
+---
+
+## 3. Canonical Identity Model
+
+Entity identification strictly forbids using transient strings, line numbers, or actor names as keys. The canonical schema uses stable, zero-padded identifiers that remain invariant across parsing and transformations:
 
 | Entity Type | Canonical ID Pattern | Example | Description |
 |---|---|---|---|
-| **Scene** | `SCN-{number}` | `SCN-001` | Sequential scene container with location, time, dialogues |
-| **Character** | `CHR-{number}` | `CHR-001` | Normalized dramatis personae with scene binding & dialogue count |
+| **Scene** | `SCN-{number}` | `SCN-001` | Sequential scene container with location, time, dialogues, and actions |
+| **Character** | `CHR-{number}` | `CHR-001` | Normalized dramatis personae with scene bindings & dialogue counts |
 | **Location** | `LOC-{number}` | `LOC-001` | Spatial setting bound to interior/exterior classifications |
 | **Prop** | `PROP-{number}` | `PROP-001` | Key physical objects and environmental props |
 | **Costume** | `COST-{number}` | `COST-001` | Character attire and wardrobe specifications |
@@ -57,69 +122,24 @@ Entity identification strictly forbids using transient strings or character name
 
 ---
 
-## 3. Core Modules & Directory Layout
+## 4. Provider Interfaces & Pluggability
 
-```
-src/
-├── app/
-│   ├── layout.tsx                # App root layout with typography and metadata
-│   ├── page.tsx                  # Main orchestration controller & state manager
-│   └── globals.css               # Tailwind CSS v4 design tokens
-├── components/
-│   ├── Header.tsx                # Top navigation, target badge, Demo & Reset triggers
-│   ├── CultureSettingsCard.tsx   # Active Marwari (Rural Jodhpur, Devanagari) matrix
-│   ├── WorkflowSteps.tsx         # Interactive 8-stage pipeline navigation
-│   ├── ScreenplayInputSection.tsx# Script ingestion, file reader, line/word counters
-│   ├── StructureReview.tsx       # Extracted scenes, characters, props, locations
-│   ├── AdaptationPlan.tsx        # Categorized suggestions, diff inspector, review actions
-│   ├── ApprovalPanel.tsx         # Human approval gate preventing unauthorized changes
-│   ├── AdaptedScreenplayView.tsx # Side-by-side & scene inspector with Devanagari output
-│   ├── VisualConceptBoard.tsx    # Scene and character prompt packages with copy actions
-│   ├── ContinuityReportView.tsx  # Audit metrics, grouped findings, human review section
-│   ├── ExportPanel.tsx           # Direct browser downloads (.txt, .json, full project)
-│   └── WorkspacePreview.tsx      # Dual-pane preview during Stage 1
-├── data/
-│   └── sampleScreenplay.ts       # Built-in Thar desert drama excerpt & cultural profile
-├── lib/
-│   ├── parser/                   # Deterministic screenplay parser
-│   ├── adaptation/               # DemoAdaptationProvider & adaptScreenplay transformer
-│   ├── visuals/                  # DemoImageGenerationProvider
-│   ├── continuity/               # Deterministic continuity validation engine
-│   └── export/                   # Browser download formatting and export service
-└── types/
-    ├── domain.ts                 # Canonical domain models and pipeline state
-    └── adaptation.ts             # Profile and configuration interfaces
-```
-
----
-
-## 4. Pipeline Stages & Execution Flow
-
-1. **Stage 1 (Screenplay Input):** Ingests raw text or `.txt` file via HTML5 `FileReader`. PDF metadata is captured with an explicit notice that binary parsing is scheduled for future milestones.
-2. **Stage 2 (Structure Extraction):** Regular expression-based deterministic parser extracts scene headings (`INT.`, `EXT.`), character cues, dialogues, action lines, props, and locations.
-3. **Stage 3 (Cultural Adaptation Plan):** `DemoAdaptationProvider` generates suggestions across 8 discrete categories: Dialogue/Register, Greeting/Address, Environment, Costume, Props, Food, Social Context, and Local Terminology.
-4. **Stage 4 (Human Approval Gate):** Enforces editorial review. Suggestions marked `pending` or `rejected` are strictly omitted from output generation.
-5. **Stage 5 (Adapted Screenplay):** `adaptScreenplay` transforms dialogues and headings into Marwari with Devanagari script, preserving scene numbering and character IDs.
-6. **Stage 6 (Visual Generation Planning):** Generates structured visual concept packages detailing camera angle, lighting (`गोधूलि वेला`), costume, architecture, and continuity constraints without calling external image APIs.
-7. **Stage 7 (Continuity Report):** Executes automated verification rules across 7 categories and highlights items requiring human/native-speaker review.
-8. **Stage 8 (Export):** Triggers client-side browser downloads for adapted scripts, translation dictionaries, audit certificates, and full project archives.
-
----
-
-## 5. Where Real AI Providers Can Be Inserted
-
-The studio is designed around provider abstractions that decouple UI and domain orchestration from intelligence backends:
+To support seamless transitions between live neural models and deterministic local engines, the codebase enforces strict TypeScript interfaces:
 
 ```typescript
-// Screenplay Adaptation Interface
+// src/lib/adaptation/types.ts
 export interface TextAdaptationProvider {
   providerId: string;
   name: string;
   generatePlan(screenplay: Screenplay, profile: CulturalProfile): Promise<AdaptationPlan>;
-  generateAdaptation(screenplay: Screenplay, plan: AdaptationPlan, decisions: Record<string, AdaptationDecision>): Promise<AdaptedScreenplay>;
+  generateAdaptation(
+    screenplay: Screenplay,
+    plan: AdaptationPlan,
+    decisions: Record<string, AdaptationDecision>
+  ): Promise<AdaptedScreenplay>;
 }
 
-// Visual Generation Interface
+// src/lib/visuals/types.ts
 export interface ImageGenerationProvider {
   providerId: string;
   name: string;
@@ -129,17 +149,16 @@ export interface ImageGenerationProvider {
 }
 ```
 
-### Future Insertion Points:
+### Registered Providers:
+- `GeminiAdaptationProvider`: Calls Gemini 2.5 Flash via `@google/genai` with low-temperature structured JSON prompting.
+- `DemoAdaptationProvider`: 100% deterministic local provider with 14 curated Marwari transformation rules.
+- `GeminiImageGenerationProvider`: Generates 35mm concept frames and character portraits via `gemini-3.1-flash-image`.
+- `DemoImageGenerationProvider`: Deterministic prompt engine synthesizing 35mm camera and lighting specifications.
 
-1. **Screenplay Parser (`src/lib/parser`):**
-   - *Current:* Deterministic regex state machine.
-   - *Future Insertion:* Multimodal Document AI (e.g. Gemini 1.5 Pro) for parsing complex binary PDFs and non-standard industry formats.
-2. **Cultural Adaptation Engine (`src/lib/adaptation`):**
-   - *Current:* `DemoAdaptationProvider` implementing curated Marwari rules.
-   - *Future Insertion:* Fine-tuned LLM provider (`GeminiAdaptationProvider` / `ClaudeAdaptationProvider`) trained on regional dialect corpora, with native speaker validation in the prompt loop.
-3. **Visual Generation Engine (`src/lib/visuals`):**
-   - *Current:* `DemoImageGenerationProvider` structuring 35mm prompt packages.
-   - *Future Insertion:* Diffusion API connectors (`FluxImageProvider`, `MidjourneyProvider`, `StableDiffusionProvider`) that take prompt packages and generate concept frames.
-4. **Continuity Engine (`src/lib/continuity`):**
-   - *Current:* Deterministic rule engine verifying canonical ID presence and order.
-   - *Future Insertion:* Multimodal continuity reasoning comparing visual character vectors and subtle narrative subtext across scenes.
+---
+
+## 5. Security & Boundary Enforcement
+
+1. **Server-Only Isolation:** All code handling `GEMINI_API_KEY` or calling `@google/genai` imports `server-only`. Any accidental client-side import is blocked at compile time.
+2. **Strict Approval Gate Enforcement:** The approval gate is enforced both in the UI state machine and at the Next.js API boundary. The server rejects unapproved requests with HTTP `400 Bad Request`.
+3. **Session-Scoped Visuals:** Images are delivered as Base64 Data URLs and kept in React workspace state, eliminating server storage risks and filesystem leaks.

@@ -1,231 +1,171 @@
 # Cultural Screenplay & Visual Adaptation Studio
 
-> AI-assisted screenplay adaptation studio preserving story, characters, and continuity across regional Indian cultural contexts.  
-> **Target Profile:** Marwari (मारवाड़ी), Rural Jodhpur, Devanagari (देवनागरी) script.
+> AI-powered narrative workspace adapting screenplays to regional Indian cultures with consistent visual production packs and strict human editorial governance.
 
 ---
 
-## Overview
+## Short Overview
 
-The **Cultural Screenplay & Visual Adaptation Studio** is a specialized narrative engineering suite that adapts screenplays to specific Indian cultural traditions, regional dialects, and visual aesthetics without compromising plot arcs, character motivations, or narrative continuity.
+The **Cultural Screenplay & Visual Adaptation Studio** transforms standard narrative screenplays into culturally grounded, production-ready regional adaptations. Built with Next.js, Google Gemini (`@google/genai`), and TypeScript, the studio preserves central dramatic purpose, emotional arcs, and character relationships while localizing dialogue, social behavior, material culture, and environment.
 
-Built for production studios, showrunners, and regional content creators, the platform combines deterministic domain parsing with cultural transformation models and human-in-the-loop governance.
-
----
-
-## Problem
-
-Adapting a screenplay to a regional Indian setting (such as rural Western Rajasthan) is rarely a matter of direct machine translation:
-1. **Linguistic Nuance:** Generic LLMs often produce flat Hindi or Bollywood caricatures rather than authentic regional dialects (e.g. Marwari spoken in rural Jodhpur).
-2. **Contextual Incongruity:** Props, architecture, costume, and socio-economic customs (e.g. water scarcity protocols, ancestral stepwells, honorific suffixes like `-सा` or `बाबोसा`) must be deeply integrated rather than superficially swapped.
-3. **Continuity Breakage:** Ad-hoc dialogue or setting changes frequently break character relationships, prop persistence, and spatial logic across scenes.
-4. **Lack of Editorial Governance:** Purely automated AI systems risk hallucinating inauthentic cultural practices without editorial sign-off gates.
+The current production profile is targeted for:
+- **Culture:** Rajasthani (Marwar)
+- **Region:** Rural Jodhpur, Rajasthan
+- **Dialect:** Marwari (मारवाड़ी)
+- **Script:** Devanagari (देवनागरी)
 
 ---
 
-## Solution
+## What It Does
 
-The studio provides an end-to-end, multi-stage adaptation pipeline:
-- **Canonical Traceability:** Every scene, character, prop, and cultural suggestion is indexed with immutable canonical IDs (`SCN-001`, `CHR-001`, `PROP-001`, `ADP-001`).
-- **Structured Cultural Adaptation Matrix:** Categorizes dialect and cultural shifts across 8 distinct dimensions.
-- **Strict Human Approval Gate:** Blocks screenplay generation until every pending suggestion is reviewed, approved, edited, or rejected by human dialectologists.
-- **Devanagari Screenplay Generation:** Materializes authentic Marwari dialogue in Devanagari script side-by-side with original text.
-- **Cinematic Visual Prompt Synthesis:** Generates professional 35mm anamorphic camera and lighting prompt packages with cultural and continuity constraints.
-- **Automated Continuity Engine:** Audits character preservation, prop retention, and chronological scene progression.
-- **Production Export Suite:** Downloads scripts, JSON translation dictionaries, continuity audit logs, and complete archive bundles.
-
----
-
-## Key Features
-
-1. **Deterministic Screenplay Parser:** Extracts scene headings (`INT./EXT.`), character cues, dialogues, parentheticals, locations, and props with zero external dependencies.
-2. **8-Category Cultural Matrix:** Covers Greetings/Address, Dialogue/Register, Environment, Costume, Key Props, Food/Hospitality, Social Context, and Local Terminology.
-3. **Interactive Human Approval Gate:** Real-time counters (Approved, Edited, Pending, Rejected), pending decision warnings, inline editing, and hard execution enforcement.
-4. **Devanagari Adapted Screenplay:** Side-by-side comparison view and scene inspector rendering authentic Marwari orthography.
-5. **Cinematic Visual Concept Board:** 35mm prompt engineering exposing camera lenses, lighting (*गोधूलि वेला*), architecture, costume, and one-click copy buttons.
-6. **Multi-Category Continuity Engine:** Automated verification rules with PASS/WARNING/ERROR severity and an explicit "Requires Human Review" section.
-7. **Production Export Suite:** Client-side downloads for adapted scripts (`.txt`), cultural plans (`.json`), continuity reports (`.txt`), and full project JSON packages.
+1. **Screenplay Ingestion & Structured Parsing:** Ingests raw text or `.txt` scripts and extracts canonical entities (`SCN-xxx`, `CHR-xxx`, `LOC-xxx`, `PROP-xxx`, `COST-xxx`).
+2. **Cultural Adaptation Planning (Gemini 2.5 Flash):** Analyzes narrative context across 8 dimensions (Dialogue, Greetings, Environment, Costume, Props, Food, Social Context, Local Terminology).
+3. **Strict Human Approval Gate:** Blocks screenplay and visual generation until human dramaturgs review, approve, edit, or reject all pending suggestions.
+4. **Devanagari Screenplay Generation (Gemini 2.5 Flash):** Synthesizes authentic Marwari dialogue in Devanagari script side-by-side with original text.
+5. **Visual Production Pack (Gemini 3.1 Flash Image):** Constructs 35mm anamorphic camera and lighting prompts and generates Scene Looks, Character Bibles, and Costume visuals.
+6. **Automated Continuity Verification:** Audits character retention, costume persistence, prop consistency, and scene chronology across PASS/WARNING/ERROR checks.
+7. **Production Deliverables Export:** Exports screenplay scripts (`.txt`), cultural adaptation dictionaries (`.json`), continuity reports (`.txt`), and full archive packages (`.json`).
 
 ---
 
-## Demo Workflow
+## Workflow
 
-The primary 3–5 minute evaluator walkthrough follows 12 distinct steps:
-
-1. **Load Demo Project:** Click **"⚡ Load Demo Project"** to populate the original Thar drama screenplay (*EXT. ANCESTRAL HOMESTEAD - DUSK*).
-2. **Start / Run Structure Extraction:** Inspect the parser extracting scenes, characters, and props.
-3. **Review Extracted Structure:** Review canonical scene hierarchy and character cues.
-4. **Approve Structure:** Sign off on extracted scenes to generate the cultural plan.
-5. **Review Cultural Adaptation Plan:** Inspect 14 categorized suggestions across 8 dimensions.
-6. **Approve / Reject / Edit Suggestions:** Test inline editing and individual decision buttons.
-7. **Pass the Human Approval Gate:** Observe the pending decision warning banner; approve remaining decisions to unlock generation.
-8. **Generate Adapted Screenplay:** Produce the Marwari Devanagari script and inspect side-by-side.
-9. **Generate Visual Prompt Packages:** Synthesize 35mm anamorphic scene and character prompt packages.
-10. **Run Continuity Check:** Execute the 10-point automated audit engine.
-11. **Review Report:** Review check statuses and flagged native-speaker review items.
-12. **Export:** Download all production deliverables.
-
-*(For a detailed second-by-second walkthrough script, see [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).)*
-
----
-
-## Architecture
-
-```
-User (Browser)
-      │
-      ▼
-Next.js App Router UI (TypeScript + Tailwind CSS)
-      │
-      ▼
-Pipeline State Controller (React Lifecycle)
-      │
-      ▼
-Deterministic Screenplay Parser (State Machine + Regex)
-      │
-      ▼
-Canonical Domain Model (SCN, CHR, LOC, PROP, COST)
-      │
-      ▼
-Cultural Adaptation Provider Interface (DemoAdaptationProvider)
-      │
-      ▼
-Human Approval Gate (Editorial Policy Filter)
-      │
-      ▼
-Adapted Screenplay Transformer (adaptScreenplay)
-      │
-      ▼
-Visual Prompt Generation Provider (DemoImageGenerationProvider)
-      │
-      ▼
-Continuity & Diagnostic Engine (continuityChecker)
-      │
-      ▼
-Production Export Service (exportService)
-```
-
-*(For detailed architectural specifications and directory layouts, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).)*
-
----
-
-## Canonical ID Strategy
-
-The studio strictly forbids using transient strings or character names as keys. The canonical schema uses stable, zero-padded identifiers:
-
-| Entity Type | Canonical ID Pattern | Example | Description |
-|---|---|---|---|
-| **Scene** | `SCN-{number}` | `SCN-001` | Sequential scene container with location, time, dialogues |
-| **Character** | `CHR-{number}` | `CHR-001` | Normalized dramatis personae with scene binding & dialogue count |
-| **Location** | `LOC-{number}` | `LOC-001` | Spatial setting bound to interior/exterior classifications |
-| **Prop** | `PROP-{number}` | `PROP-001` | Key physical objects and environmental props |
-| **Costume** | `COST-{number}` | `COST-001` | Character attire and wardrobe specifications |
-| **Adaptation** | `ADP-{number}` | `ADP-001` | Discrete cultural translation suggestion with category and status |
-| **Visual Package** | `VIS-{entityId}` | `VIS-SCN-001` | Framed prompt package with cultural and continuity constraints |
-| **Continuity Check**| `CON-{number}` | `CON-001` | Automated audit rule execution with PASS/WARNING/ERROR |
-
----
-
-## Human-in-the-Loop Adaptation
-
-Cultural authenticity cannot be fully delegated to automated algorithms. The studio implements a **Strict Human Approval Gate**:
-- Suggestions start in a `pending` state.
-- Reviewers can mark suggestions as `approved`, `rejected`, or `edited`.
-- **Adapted screenplay generation is strictly blocked** while any suggestion remains `pending`.
-- Rejected suggestions are **strictly excluded** from the final adapted text.
-- User-edited phrases take precedence over automated suggestions.
-- The UI displays explicit counter metrics: *Total, Approved, Edited, Pending, Rejected*.
-
----
-
-## Demo Mode
-
-To allow complete, frictionless review without paid API keys or external network dependencies, this milestone operates 100% in **Deterministic Demo Mode**:
-- **Zero Mock Deception:** The application explicitly labels demo providers and states that real external AI endpoints are not connected.
-- **Zero API Keys Required:** No OpenAI, Anthropic, Gemini, Midjourney, or Replicate credentials are required.
-- **Deterministic Transformation:** Screenplay parsing, adaptation suggestion generation, prompt synthesis, and continuity checks execute instantly on the client.
-
----
-
-## Visual Generation
-
-Visual concept planning produces production-grade prompt packages without calling live diffusion models:
-- **Scene Packages:** Scene ID, subject framing, environment, architecture, costumes, key props, camera specs (e.g. Arri Alexa LF with Cooke Anamorphic lenses), lighting (*गोधूलि वेला*), cultural constraints, continuity rules, and engineered prompt string.
-- **Character Packages:** Character ID, portrait specifications, age descriptor, costume, environment context, continuity requirements, and character prompt string.
-- **Copy to Clipboard:** One-click prompt copying with instant visual confirmation.
-- **Prominent Label:** Displays *"Image provider not connected — prompt package generated in Demo Mode."*
-
----
-
-## Continuity
-
-The continuity engine executes automated rule checks across 7 categories:
-1. **Character Continuity:** Verifies that all characters from original scenes appear in adapted scenes.
-2. **Costume Continuity:** Verifies that attire modifications remain consistent across sequential scenes.
-3. **Prop Persistence:** Tracks physical props (e.g. the brass lota carried from the outdoor well into the indoor veranda).
-4. **Location Consistency:** Validates spatial logic and environmental descriptions.
-5. **Scene Ordering:** Verifies chronological scene sequence and time-of-day progression.
-6. **Exclusion Validation:** Guarantees that rejected cultural suggestions do not appear in the adapted screenplay.
-7. **Human Review Escalation:** Surfaces nuanced cultural and administrative questions (e.g. village panchayat protocols) requiring native elder sign-off.
-
----
-
-## Export
-
-The studio provides direct client-side downloads using standard canonical filenames:
-- `cultural-adapted-screenplay.txt`: Production script formatted with scene headers, action lines, dual Devanagari/English dialogues, and applied adaptation metadata.
-- `cultural-adaptation-plan.json`: Complete translation ledger with linguistic rationales, confidence scores, and approved editorial decisions.
-- `continuity-report.txt`: Full continuity audit certificate with check findings and human sign-off list.
-- `cultural-screenplay-project.json`: Complete serialized studio state for archiving and session replay.
-
----
-
-## Testing
-
-The studio features an automated unit test suite using the Node.js native test runner (`tsx --test`):
-- **Test 1:** Screenplay parser extraction (scenes, characters, dialogues).
-- **Test 2:** Canonical ID stability across multi-pass parsing.
-- **Test 3:** Categorized adaptation plan generation with canonical IDs.
-- **Test 4:** Rejection filtering (rejected items strictly omitted).
-- **Test 5:** Approved adaptations applied with Devanagari script output.
-- **Test 6:** Scene ordering and canonical ID preservation.
-- **Test 7:** Continuity error detection for missing entities.
-- **Test 8:** Export payload validation and formatting.
-
-Run tests:
-```bash
-npm test
+```text
+Screenplay Input (.txt / paste)
+      ↓
+Structure Extraction (Canonical SCN / CHR / LOC / PROP / COST)
+      ↓
+Structure Review & Confirmation
+      ↓
+Cultural Adaptation Plan (Gemini 2.5 Flash / 8 Dimensions)
+      ↓
+Human Editorial Decisions (Approve / Edit / Reject)
+      ↓
+[ HARD HUMAN APPROVAL GATE ] (Blocks unreviewed changes)
+      ↓
+Culturally Adapted Screenplay (Marwari Devanagari)
+      ↓
+Visual Production Pack (Gemini 3.1 Flash Image · 35mm Anamorphic)
+      ↓
+Automated Continuity Audit (10+ Rule Engine)
+      ↓
+Production Package Export (JSON & Text Bundles)
 ```
 
 ---
 
-## Setup
+## AI Architecture
+
+```text
+Browser Client (Next.js UI · React 19)
+      │
+      │  (Zero client-side API keys)
+      ▼
+Next.js Server API Routes (/api/adapt/*, /api/visuals/*)
+      │
+      ├── Server-Only Security Boundary (`import "server-only"`)
+      ├── Canonical Payload Validation
+      └── Human Approval Gate Verification
+      │
+      ▼
+Google Gemini SDK (`@google/genai`)
+      │
+      ├── Text Model: `gemini-2.5-flash` (Cultural plan & adapted screenplay)
+      └── Image Model: `gemini-3.1-flash-image` (Scene looks & character portraits)
+      │
+      ▼
+Deterministic Fallback Engine (Local offline mode if API key is absent)
+```
+
+---
+
+## Tech Stack
+
+- **Framework:** [Next.js 16 (App Router)](https://nextjs.org/)
+- **Core Runtime:** React 19, TypeScript 5
+- **AI SDK:** [@google/genai](https://www.npmjs.com/package/@google/genai) (Official Google Gemini JavaScript SDK)
+- **Styling:** Vanilla Tailwind CSS v4
+- **Testing:** Node.js native test runner (`tsx --test`)
+- **Execution:** Zero client-side key leakage; deterministic offline fallback built-in
+
+---
+
+## Project Structure
+
+```text
+.
+├── src/
+│   ├── app/                    # Next.js App Router pages & API routes
+│   │   ├── api/
+│   │   │   ├── adapt/plan/     # Cultural adaptation plan endpoint (Gemini)
+│   │   │   ├── adapt/screenplay/# Adapted script endpoint (Approval-gated)
+│   │   │   ├── visuals/packages/# Visual prompt packages endpoint
+│   │   │   ├── visuals/generate-image/ # Gemini image generation endpoint
+│   │   │   └── status/         # Server Gemini status check
+│   │   ├── globals.css         # Base styling
+│   │   ├── layout.tsx          # Root layout
+│   │   └── page.tsx            # Main 8-stage interactive studio pipeline
+│   ├── components/             # Modular React UI components
+│   │   ├── Header.tsx          # Studio header with live AI connection status
+│   │   ├── StructureReview.tsx # Canonical scene & character review
+│   │   ├── AdaptationPlan.tsx  # 8-category cultural matrix view
+│   │   ├── ApprovalPanel.tsx   # Human approval gate with counters
+│   │   ├── AdaptedScreenplayView.tsx # Dual English / Devanagari script
+│   │   ├── VisualConceptBoard.tsx    # 35mm prompt cards & Gemini image gallery
+│   │   ├── ContinuityReportView.tsx  # Automated audit report view
+│   │   └── ExportPanel.tsx     # Deliverables download manager
+│   ├── data/                   # Sample 3-scene rural Thar drama screenplay
+│   ├── lib/                    # Core business logic & AI providers
+│   │   ├── adaptation/         # Gemini & demo adaptation providers
+│   │   ├── continuity/         # Multi-category continuity checker
+│   │   ├── export/             # Text & JSON export formatters
+│   │   ├── gemini/             # Server-only Gemini client abstraction
+│   │   ├── parser/             # Deterministic screenplay parser
+│   │   └── visuals/            # Gemini & demo image generation engines
+│   └── types/                  # Canonical domain types & interfaces
+├── docs/                       # Comprehensive documentation suite
+│   ├── AI_USAGE.md             # AI integration, models, and security
+│   ├── ARCHITECTURE.md         # Detailed pipeline & boundary architecture
+│   ├── ASSIGNMENT_AUDIT.md     # Rigorous requirement compliance audit
+│   ├── DEMO_SCRIPT.md          # Second-by-second walkthrough demo script
+│   ├── LIMITATIONS.md          # Known scope boundaries and limitations
+│   └── SAMPLE_OUTPUT.md        # Static samples of generated artifacts
+├── test/                       # Automated unit & integration tests
+├── .env.example                # Template for environment configuration
+└── package.json
+```
+
+---
+
+## Setup Instructions
 
 ### Prerequisites
-- Node.js `v20+` or `v22+`
-- npm `10+`
+- Node.js 20.x or higher
+- npm 9.x or higher
+- A Google Gemini API key from [Google AI Studio](https://aistudio.google.com/)
 
-### Installation
+### 1. Clone & Install
 ```bash
+git clone <repo-url>
+cd "Cultural Screenplay Visual Adaptation Studio"
 npm install
 ```
 
-### Run Unit Tests
+### 2. Configure Environment
+Copy `.env.example` to `.env.local`:
 ```bash
-npm test
+cp .env.example .env.local
+```
+Add your Gemini API key in `.env.local`:
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_TEXT_MODEL=gemini-2.5-flash
+GEMINI_IMAGE_MODEL=gemini-3.1-flash-image
 ```
 
-### Run Linter
-```bash
-npm run lint
-```
+> **Note:** If `GEMINI_API_KEY` is omitted, the application operates in 100% deterministic local demo mode with zero external network dependencies.
 
-### Production Build
-```bash
-npm run build
-```
-
-### Start Development Server
+### 3. Run Locally
 ```bash
 npm run dev
 ```
@@ -233,24 +173,68 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## Limitations
+## Environment Variables
 
-1. **PDF Parsing:** The file input captures PDF metadata but guides users to paste text directly; binary PDF extraction via server libraries is not connected in this client-side demo milestone.
-2. **Curated Demo Lexicon:** The `DemoAdaptationProvider` covers 14 high-impact dialect transformation rules across 8 cultural dimensions. It does not provide arbitrary machine translation.
-3. **Single Active Cultural Profile:** Currently targets Marwari (Rural Jodhpur, Devanagari). Additional dialect profiles (Braj Bhasha, Maithili, Awadhi) are architectural stubs for future milestones.
-4. **Prompt Synthesis Only:** Visual packages engineer photorealistic prompt strings; live diffusion rendering via external GPU APIs is not connected.
-5. **Session State:** State is maintained in React application memory; cross-session persistence is achieved via the Complete Project JSON export.
-
-*(For full details, see [docs/LIMITATIONS.md](docs/LIMITATIONS.md).)*
+| Variable | Description | Default | Required |
+|---|---|---|---|
+| `GEMINI_API_KEY` | Server-side Google Gemini API key | None | Yes for Live AI |
+| `GEMINI_TEXT_MODEL` | Gemini model for cultural plan and script adaptation | `gemini-2.5-flash` | No |
+| `GEMINI_IMAGE_MODEL` | Gemini model for 35mm cinematic visual generation | `gemini-3.1-flash-image` | No |
 
 ---
 
-## Future AI Integration
+## Testing Commands
 
-The studio is architected with clean provider interfaces (`TextAdaptationProvider`, `ImageGenerationProvider`) allowing seamless connection of neural AI models:
-- **Screenplay Understanding:** Multimodal Document AI (Gemini 1.5 Pro) for extracting non-standard Final Draft and PDF screenplays.
-- **Cultural & Dialect Adaptation:** Fine-tuned Indic LLMs (Gemini / Claude) trained on regional dialect corpora with native linguistic validation.
-- **Visual Rendering:** Direct integration with FLUX.1 Pro, Stable Diffusion 3.5, or Midjourney APIs.
-- **Multimodal Continuity:** Cross-scene visual embedding checks for actor likeness and spatial haveli layout consistency.
+```bash
+# Run unit & integration test suites
+npm test
 
-*(For detailed integration architecture, see [docs/AI_USAGE.md](docs/AI_USAGE.md).)*
+# Run ESLint validation
+npm run lint
+
+# Build production bundle
+npm run build
+```
+
+---
+
+## Demo Information
+
+The studio includes a 3-scene original screenplay fixture (*EXT. ANCESTRAL HOMESTEAD - DUSK*, *INT. HAVELI VERANDA - NIGHT*, *EXT. STEPWELL PERIMETER - DAWN*) set in rural Jodhpur.
+
+To experience a rapid 3–5 minute evaluation:
+1. Click **"⚡ Load Demo Project"** in the top navigation.
+2. Advance through Structure Extraction, Cultural Plan, and the Human Approval Gate.
+3. Observe how unapproved changes are strictly barred from the adapted script.
+4. Review Devanagari output and generate 35mm concept visuals with Gemini.
+5. Inspect the 10-point continuity audit report and download production files.
+
+*(For the complete second-by-second evaluator walkthrough, see [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).)*
+
+---
+
+## Current Limitations & Verification Status
+
+- **Gemini Text Generation (Verified):** Live text adaptation planning and Devanagari screenplay synthesis are fully operational and verified end-to-end via Gemini Flash models.
+- **Gemini Image Generation (Implemented, Quota-Dependent):** Image generation is fully implemented using `@google/genai` targeting `gemini-3.1-flash-image`. Live image synthesis is dependent on Google account quota and billing availability. In testing on Google AI Studio free tier, requests encountered Google's `429 RESOURCE_EXHAUSTED` (allocation limit: 0 for image models). The studio handles this cleanly by surfacing the complete 35mm prompt specifications and an inline retry control. *(See [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) for details.)*
+- **Human-in-the-Loop Dependency:** Regional dialect nuances, honorific registers, and community protocols require review by native speakers.
+- **In-Memory Session State:** Workspaces reside in browser state; persistence across browser sessions requires re-ingesting or loading exported project bundles.
+- **PDF Extraction:** PDF upload validates document metadata; text ingestion currently utilizes `.txt` files or direct text pasting.
+
+---
+
+## Detailed Documentation
+
+- [AI Integration & Security (`docs/AI_USAGE.md`)](docs/AI_USAGE.md)
+- [System Architecture (`docs/ARCHITECTURE.md`)](docs/ARCHITECTURE.md)
+- [Assignment Compliance Audit (`docs/ASSIGNMENT_AUDIT.md`)](docs/ASSIGNMENT_AUDIT.md)
+- [Evaluator Demo Script (`docs/DEMO_SCRIPT.md`)](docs/DEMO_SCRIPT.md)
+- [Limitations & Scope Boundaries (`docs/LIMITATIONS.md`)](docs/LIMITATIONS.md)
+- [Sample Production Outputs (`docs/SAMPLE_OUTPUT.md`)](docs/SAMPLE_OUTPUT.md)
+
+---
+
+## Author
+
+**STAGE Junior AI-Native Engineer Assignment Submission**  
+Built by Mehul.

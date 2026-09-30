@@ -1,116 +1,140 @@
 # Evaluator Demo Walkthrough Script (3–5 Minutes)
 
-This script is structured for a 3 to 5-minute recorded video walkthrough or live evaluation of the **Cultural Screenplay & Visual Adaptation Studio**.
+This script is structured for a 3 to 5-minute recorded video walkthrough or live evaluation of the **Cultural Screenplay & Visual Adaptation Studio**, showcasing the live Google Gemini AI integration (`gemini-2.5-flash` and `gemini-3.1-flash-image`) and the deterministic fallback mode.
 
 ---
 
-## Walkthrough Timeline
+## Walkthrough Timeline & Steps
 
-### 0:00 – 0:20 | Product Introduction
-- **What to click:** View the application dashboard landing page at `http://localhost:3000`. Point mouse at the title header and the active culture badge (*Marwari · Rural Jodhpur · देवनागरी*).
-- **What to show:** The clean, studio-grade layout, the 8-stage interactive workflow progress bar, and the active cultural profile card.
+### Step 1: Load Screenplay (0:00 – 0:30)
+- **What to click:** 
+  1. Open [http://localhost:3000](http://localhost:3000).
+  2. Point to the top navigation header displaying the connection status badge: **"LIVE AI (Gemini Connected)"** (or "Deterministic Demo Mode" if operating without an API key).
+  3. Click **"⚡ Load Demo Project"** in the header (or paste screenplay text / upload `.txt`).
+- **What to show:**
+  - The screenplay text editor populating with the original 3-scene rural Thar drama (*EXT. ANCESTRAL HOMESTEAD - DUSK*, *INT. HAVELI VERANDA - NIGHT*, *EXT. STEPWELL PERIMETER - DAWN*).
+  - The live word, line, and character count counters in the input dashboard.
+  - The sample disclaimer confirming this is original demo content.
 - **What to say:**
-  > *"Welcome to the Cultural Screenplay & Visual Adaptation Studio. This is an AI-assisted engineering workbench designed to adapt narrative screenplays into specific Indian cultural contexts and dialects while strictly preserving story arcs, character motivations, and narrative continuity.*
-  > *Today, our active target profile is rural Jodhpur Marwari rendered in authentic Devanagari script. The prototype is running entirely locally in a deterministic demo mode—no API keys or external paid services required, with zero mock deception."*
+  > *"Welcome to the Cultural Screenplay & Visual Adaptation Studio. In this walkthrough, we will adapt an original narrative screenplay into regional Marwari set in rural Jodhpur, Rajasthan, and generate an AI-powered visual production pack using Google Gemini.*
+  > *Notice our header status badge: the server is connected to live Gemini models via the official `@google/genai` SDK, with a deterministic local engine available as fallback."*
 
 ---
 
-### 0:20 – 0:45 | Load Demo Screenplay & Target Culture
-- **What to click:** Click **"⚡ Load Demo Project"** in the top-right header (or click **"Load Sample Scene"** in the Input section).
-- **What to show:** The screenplay input editor populating with the original 3-scene drama (*EXT. ANCESTRAL HOMESTEAD - DUSK*, *INT. HAVELI VERANDA - NIGHT*, *EXT. STEPWELL PERIMETER - DAWN*). Point out the disclaimer banner: *"Original demo screenplay created for this prototype. Not supplied by STAGE."* Point out the line, word, and character counters.
+### Step 2: Extract Structure & Stage 2 Transition (0:30 – 0:50)
+- **What to click:** Click **"Start Adaptation Workflow"** (or click **Stage 2: "Structure Extraction"**).
+- **What to show:**
+  - Real-time extraction summary: 3 scenes, 2 characters, 6 props, 3 locations.
+  - Automatic navigation to Stage 2: Structure Extraction.
 - **What to say:**
-  > *"To demonstrate the complete lifecycle, I'll load our built-in original demo screenplay—a dramatic three-scene confrontation between an aging patriarch and his city-educated son over water rights and ancestral soil in the Thar desert.*
-  > *Notice the explicit disclaimer: this is original content written specifically for this evaluation. Our active cultural profile locks in key architectural anchors like yellow sandstone havelis and stepwells, customary filial protocols, and traditional attire."*
+  > *"Stage 2 invokes our deterministic screenplay state machine. The parser scans the script boundaries, identifies sluglines, character names, parentheticals, and action lines, generating structured production entities."*
 
 ---
 
-### 0:45 – 1:20 | Structure Extraction
-- **What to click:** Click **Stage 2: "Structure Extraction"** in the top workflow bar (or click "Start Adaptation Workflow" / "Approve Structure").
-- **What to show:** The extracted structure review dashboard with metric cards: **3 Scenes**, **2 Characters**, **6 Props**, **3 Locations**, and **0 Unresolved items**. Toggle between the tabs:
-  - **Scenes Tab:** `SCN-001` (Dusk), `SCN-002` (Night), `SCN-003` (Dawn).
-  - **Characters Tab:** `CHR-001` (Vikram) and `CHR-002` (Thakur Bhawani Singh) with canonical IDs and dialogue counts.
-  - **Props Tab:** `PROP-001` (Weathered stone well), `PROP-002` (Vintage motorcycle), `PROP-003` (Brass lota of fresh water).
+### Step 3: Review Canonical Entities (0:50 – 1:15)
+- **What to click:** Toggle through the review tabs: **Scenes**, **Characters**, **Props**, **Locations**.
+- **What to show:**
+  - Canonical identifiers: `SCN-001`, `SCN-002`, `SCN-003`.
+  - Characters `CHR-001` (Vikram) and `CHR-002` (Thakur Bhawani Singh) with tracked dialogue counts.
+  - Props `PROP-001` (Ancestral stone stepwell), `PROP-002` (Vintage motorcycle), `PROP-003` (Brass lota).
 - **What to say:**
-  > *"In Stage 2, our deterministic screenplay parser breaks the raw script down into a canonical domain model. Every scene receives a stable zero-padded identifier—like SCN-001 and SCN-002. Characters and key props are indexed with persistent IDs. This ensures full traceability across every subsequent transformation—we never rely on fragile string matching."*
+  > *"Notice that every entity is assigned an immutable canonical ID—such as SCN-001, CHR-001, and PROP-001. We never rely on volatile string matching or ungrounded model assumptions. This canonical identity graph forms the foundation for all subsequent adaptation and visual generation."*
 
 ---
 
-### 1:20 – 2:00 | Cultural Adaptation Plan
-- **What to click:** Click **Stage 3: "Cultural Adaptation Plan"**.
-- **What to show:** The 14 categorized cultural adaptation suggestions. Click category filter pills:
-  - **Greeting/Address:** Shows `ADP-001` (*Father* → *बाबोसा / Babosa*) and `ADP-002` (*Vikram* → *विक्रम सा*).
-  - **Dialogue/Register:** Shows `ADP-003` (*Because there's nothing left in it, Father* → *काईं कोनी बच्यो इणमें, बाबोसा।*).
-  - **Environment:** Shows haveli parapet and stepwell transformation.
-  - **Costume & Props:** Shows handspun Angarkha, saffron safa, silver murki, and dust-caked Enfield with protective moli thread.
-  - Demonstrate inline editing: Click **"✎ Edit"** on any suggestion, tweak the text, and click **"Save"**.
+### Step 4: Confirm Cultural Profile & Settings (1:15 – 1:30)
+- **What to click:** Point to the **Active Cultural Profile Card** in the main interface.
+- **What to show:**
+  - Target Culture: **Rajasthani (Marwar)**
+  - Target Region: **Rural Jodhpur, Thar Desert fringe**
+  - Target Script: **Devanagari (देवनागरी)**
+  - Dialect markers (*काईं*, *कोनी*, *-सा*, *बाबोसा*) and architectural context (yellow sandstone haveli, dry baoris).
 - **What to say:**
-  > *"In Stage 3, the adaptation engine proposes 14 distinct cultural adjustments across eight dimensions—including filial greetings, regional idioms, architecture, costumes, and socio-economic customs like 'kudak' debt foreclosure.*
-  > *Each suggestion shows the original English phrase, the proposed Marwari idiom, the Devanagari orthography, a confidence score, and a clear linguistic rationale. Reviewers can approve, reject, or directly edit suggestions inline."*
+  > *"Our active cultural matrix targets rural Jodhpur Marwari in Devanagari script. We lock in regional architectural conventions, water scarcity protocols, and socio-economic customs before triggering generation."*
 
 ---
 
-### 2:00 – 2:30 | Human Approval Gate
-- **What to click:** Click **Stage 4: "Human Approval"** (or click "Go to Human Approval Gate").
-- **What to show:** The Human Approval Gate dashboard. Point out the counter bar: **6 Approved**, **2 Edited**, **2 Pending**, **0 Rejected**.
-  - Show the prominent warning banner: *"2 cultural decisions still require review. The adaptation pipeline is paused at this gate."*
-  - Show that the main action button is disabled: *"Review Required: 2 Cultural Decisions Pending"*.
-  - Click **"✓ Approve Remaining (2)"** to resolve the gate.
-  - Show the status switch to green: *"All Decisions Reviewed & Signed Off"*.
-  - Show the button now enabled: *"Generate Adapted Screenplay (10 Adaptations)"*.
+### Step 5: Generate Cultural Adaptation Plan with Gemini (1:30 – 2:05)
+- **What to click:** Click **"Approve Structure & Generate Cultural Plan"**.
+- **What to show:**
+  - Loading banner: *"⚡ Gemini AI is synthesizing cultural adaptation suggestions across all 8 dimensions..."*
+  - The generated **Cultural Adaptation Plan** populated with 8–18 categorized suggestions.
+  - Category filter pills: *Dialogue/Register*, *Greeting/Address*, *Environment*, *Costume*, *Props*, *Social context*.
+  - Individual suggestion cards showing: original English phrase, proposed regional idiom, authentic Devanagari script, confidence score, and cultural rationale.
 - **What to say:**
-  > *"This brings us to one of our core architectural pillars: the Human Approval Gate. Notice that loading the demo project did not silently bypass human governance.*
-  > *The system explicitly halts here because two cultural decisions are still pending review. The generate button is strictly disabled. This guarantees unverified AI assumptions never contaminate production scripts. I'll click 'Approve Remaining', the gate clears, and we can now generate the adapted screenplay."*
+  > *"Clicking approve sends the canonical screenplay graph to Gemini 2.5 Flash via our server-side API. Gemini analyzes the dramatic beats across all eight cultural dimensions.*
+  > *For example, in Scene 1, it identifies the address 'Father' and proposes the respectful Marwari title 'बाबोसा' (Babosa), shifts standard English dialogue to 'काईं कोनी बच्यो इणमें, बाबोसा', and maps the generic homestead into a sandstone haveli courtyard (पोल) and stepwell (बावड़ी)."*
 
 ---
 
-### 2:30 – 3:10 | Adapted Screenplay
-- **What to click:** Click **"Generate Adapted Screenplay"** (transitions to Stage 5).
-- **What to show:** The Adapted Screenplay View.
-  - Toggle between **Side-by-Side Comparison** and **Scene Inspector**.
-  - In Scene 1, show the English dialogue on the left and the authentic Marwari Devanagari dialogue on the right:
-    - *BHAWANI:* *"You haven't looked into that well since your mother passed, Vikram."* → *"थाऱी माँ रे जाबा पछे तूं इण बावड़ी में कदे नीं झांक्यो, विक्रम सा।"*
-    - *VIKRAM:* *"Because there's nothing left in it, Father."* → *"काईं कोनी बच्यो इणमें, बाबोसा।"*
-  - Point out that scene numbering and canonical IDs remain perfectly preserved.
+### Step 6: Review & Approve Human Decisions (Approval Gate) (2:05 – 2:40)
+- **What to click:**
+  1. Click **"✎ Edit"** on any suggestion, adjust the text, and click **"Save"**.
+  2. Click **"Proceed to Human Approval Gate"** (Stage 4).
+  3. Point to the decision counters: Approved, Edited, Pending, Rejected.
+  4. Point to the active warning banner: *"Review required before adaptation: Pending decisions require review."*
+  5. Show that the execution button is disabled.
+  6. Click **"✓ Approve Remaining Pending"**.
+- **What to show:**
+  - The status switching to green: *"✓ All Decisions Reviewed & Signed Off"*.
+  - The action button unlocking: *"Generate Adapted Screenplay with Gemini"*.
 - **What to say:**
-  > *"Stage 5 outputs the fully adapted screenplay in authentic Devanagari script. Notice how our approved adjustments have been woven directly into the dialogue while preserving the exact emotional beats, parentheticals, and dramatic tension.*
-  > *The side-by-side view allows dialect supervisors to audit line-by-line fidelity between the English source and the Marwari adaptation."*
+  > *"Here we arrive at the core governance pillar: the Human Approval Gate. Notice that adaptation generation is strictly blocked while any suggestions remain pending.*
+  > *Both the client interface and the server API enforce this check. Once I approve the remaining suggestions, the gate unlocks, guaranteeing that no unverified AI hallucinations make their way into production."*
 
 ---
 
-### 3:10 – 3:40 | Visual Prompt Generation
-- **What to click:** Click **"Proceed to Visual Concept Board"** (transitions to Stage 6).
-- **What to show:** The Visual Concept Board.
-  - Point out the disclaimer: *"Image provider not connected — prompt package generated in Demo Mode."*
-  - Toggle between **Scene Concept Prompts** (`VIS-SCN-001`, `VIS-SCN-002`, `VIS-SCN-003`) and **Character Concept Prompts** (`VIS-CHR-001`, `VIS-CHR-002`).
-  - Point out the rich 35mm cinematic parameters: camera lenses (anamorphic primes, 50mm, 28mm), golden hour dusk lighting (*गोधूलि वेला*), amber lantern glow, and cultural constraints.
-  - Click **"Copy Prompt"** on `VIS-SCN-001` and show the *"Copied!"* confirmation state.
+### Step 7: Generate Adapted Screenplay with Gemini (2:40 – 3:15)
+- **What to click:** Click **"Generate Adapted Screenplay"** (Stage 5).
+- **What to show:**
+  - Status banner confirming Gemini synthesis in Devanagari script.
+  - Side-by-side view showing English on the left and authentic Marwari Devanagari dialogue on the right:
+    - *BHAWANI:* *"थाऱी माँ रे जाबा पछे तूं इण बावड़ी में कदे नीं झांक्यो, विक्रम सा।"*
+    - *VIKRAM:* *"काईं कोनी बच्यो इणमें, बाबोसा।"*
+  - Toggle to **Scene Inspector** showing canonical ID preservation.
 - **What to say:**
-  > *"Stage 6 synthesizes production-ready visual prompt packages for cinematographers and concept artists. We don't pretend to run fake diffusion models here; instead, our engine structures professional camera specs, anamorphic framing, lighting atmosphere, and costume constraints.*
-  > *Clicking 'Copy Prompt' gives creators an immediately usable prompt string optimized for Midjourney, FLUX, or Stable Diffusion."*
+  > *"In Stage 5, Gemini synthesizes the final adapted screenplay using only our approved human decisions. Notice the dual-column view: dramaturgs can audit line-by-line fidelity. Scene headings, action descriptions, and character designations are fully grounded in Marwari setting while emotional arcs and scene IDs remain identical."*
 
 ---
 
-### 3:40 – 4:20 | Continuity Report
-- **What to click:** Click **"Proceed to Continuity Report"** (transitions to Stage 7).
-- **What to show:** The Continuity & Narrative Verification Report.
-  - Point out the metrics: **Total Checks: 10**, **Passed: 9**, **Warnings: 1**, **Errors: 0**.
-  - Show the integrity banner: *"Integrity Verified: No unresolved continuity errors detected."*
-  - Filter by category pills: *Character continuity*, *Costume continuity*, *Prop continuity*, *Location continuity*, *Scene ordering*.
-  - Show the **"Unresolved / Requires Human Review"** section highlighting nuanced cultural sign-offs (e.g. verifying village council protocol and dialect register with native elders).
+### Step 8: Generate Visual Production Pack with Gemini (3:15 – 3:55)
+- **What to click:** Click **"Proceed to Visual Concept Board"** (Stage 6).
+- **What to show:**
+  - The Visual Concept Board populated with Scene Concept Prompts (`VIS-SCN-001`, `VIS-SCN-002`) and Character Concept Prompts (`VIS-CHR-001`, `VIS-CHR-002`).
+  - 35mm cinematic parameters: camera lenses (anamorphic primes), lighting (*गोधूलि वेला*), golden hour dust particles, and continuity constraints.
+  - Click **"Generate All AI Visuals (Gemini)"** (or click **"✨ Generate with Gemini"** on a card).
+  - Watch the live progress indicator: `Generating Visual 1 of 5...`, `Generating Visual 2 of 5...`
+  - Real generated images appearing directly in the visual concept artboard frames.
+  - Click **"🔍 Expand"** to show full-screen cinematic modal view.
 - **What to say:**
-  > *"Stage 7 runs our automated continuity engine. It verifies seven distinct integrity categories—confirming that all characters appear in proper sequence, props like the brass lota persist logically from the outdoor well into the night veranda, and rejected adaptations were never leaked.*
-  > *Crucially, we separate automated structural checks from nuanced cultural verification: the 'Requires Human Review' section explicitly surfaces dialect items that need native-speaker editorial sign-off."*
+  > *"In Stage 6, approved production data is converted into 35mm concept prompt packages and sent to Gemini's image model (`gemini-3.1-flash-image`).*
+  > *Notice that prompts are not vague script snippets: they explicitly encode character IDs, saffron safa turban styles, yellow sandstone textures, and 35mm anamorphic camera framing. The generated image appears directly in our gallery, with live progress tracking across scene looks and character portraits."*
+  > *(Note for evaluators: Live image generation requires an active Google AI Studio billing/quota tier. On free-tier accounts, Google returns 429 RESOURCE_EXHAUSTED (limit: 0); the UI displays complete 35mm prompt packages with inline retry controls and graceful status reporting).*
 
 ---
 
-### 4:20 – 4:45 | Export & Wrap-up
-- **What to click:** Click **"Proceed to Export"** (transitions to Stage 8).
-- **What to show:** The Export dashboard with 4 download cards:
-  1. Click **"Download cultural-adapted-screenplay.txt"** → Browser downloads file.
-  2. Click **"Download cultural-adaptation-plan.json"** → Browser downloads file.
-  3. Click **"Download continuity-report.txt"** → Browser downloads file.
-  4. Click **"Download cultural-screenplay-project.json"** → Browser downloads file.
-  - Show the green confirmation toasts appearing.
+### Step 9: Review Continuity Report (3:55 – 4:30)
+- **What to click:** Click **"Proceed to Continuity Report"** (Stage 7).
+- **What to show:**
+  - Automated 10-point audit summary: **10 Checks Executed**, **Passed: 9**, **Warnings: 1**, **Errors: 0**.
+  - Integrity status banner: *"Integrity Verified: No unresolved continuity errors detected."*
+  - Category filters: Character, Costume, Prop, Location, Scene ordering.
+  - The explicit *"Unresolved / Requires Human Review"* section highlighting native elder sign-off.
 - **What to say:**
-  > *"Finally, Stage 8 allows production teams to export all deliverables in clean, standard formats: the complete Devanagari script, the structured adaptation dictionary in JSON, the continuity certificate, and the full studio project bundle for archival.*
-  > *The entire studio runs in under five minutes, completely locally, with full unit test coverage and zero API keys. Thank you for your time!"*
+  > *"Stage 7 executes our automated continuity audit engine. It programmatically asserts character retention, prop persistence—like the brass lota remaining on the stepwell parapet—and scene chronology.*
+  > *Notice the explicit 'Requires Human Review' section, directing showrunners to items that demand native-speaker cultural sign-off."*
+
+---
+
+### Step 10: Export Deliverables (4:30 – 5:00)
+- **What to click:** Click **"Proceed to Export"** (Stage 8).
+- **What to show:**
+  - The 4 production export packages with download buttons:
+    1. **Adapted Screenplay Script (`.txt`)**
+    2. **Cultural Adaptation Plan & Matrix (`.json`)**
+    3. **Continuity Verification Audit Report (`.txt`)**
+    4. **Complete Project Archive Bundle (`.json`)**
+  - Click **"Download"** on Adapted Screenplay and open the downloaded file to show formatted Devanagari text.
+- **What to say:**
+  > *"Finally, Stage 8 provides immediate client-side downloads of all production deliverables—from the adapted script to the full JSON project archive.*
+  > *This concludes our demonstration of the Cultural Screenplay & Visual Adaptation Studio: an end-to-end, AI-native system that unites foundation models with strict human governance and regional cultural authenticity."*

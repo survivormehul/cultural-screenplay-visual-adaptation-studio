@@ -1,14 +1,31 @@
+"use client";
+
 import React from "react";
+
+export interface AiServerStatus {
+  configured: boolean;
+  provider: string;
+  textModel: string;
+  imageModel: string;
+}
 
 interface HeaderProps {
   onResetProject?: () => void;
   onLoadDemoProject?: () => void;
+  aiStatus?: AiServerStatus | null;
+  aiMode?: "live" | "demo";
+  onToggleAiMode?: (mode: "live" | "demo") => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onResetProject,
   onLoadDemoProject,
+  aiStatus,
+  aiMode = "live",
+  onToggleAiMode,
 }) => {
+  const isLiveConnected = Boolean(aiStatus?.configured);
+
   return (
     <header className="border-b border-stone-200 bg-white shadow-xs">
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
@@ -23,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
               </h1>
             </div>
             <p className="max-w-3xl text-sm text-stone-600">
-              Deterministic local demo studio: adapting narrative screenplays to regional Marwari (Rural Jodhpur, Devanagari) while preserving plot, characters, and continuity.
+              AI-powered cultural adaptation studio: grounding screenplays in regional Marwari (Rural Jodhpur, Devanagari) and generating consistent 35mm visual production packs.
             </p>
           </div>
 
@@ -32,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onLoadDemoProject}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 font-semibold text-amber-900 hover:bg-amber-100 transition-colors shadow-2xs"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 font-semibold text-amber-900 hover:bg-amber-100 transition-colors shadow-2xs cursor-pointer"
               >
                 <span>⚡ Load Demo Project</span>
               </button>
@@ -42,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onResetProject}
-                className="inline-flex items-center gap-1 rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 font-medium text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                className="inline-flex items-center gap-1 rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 font-medium text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors cursor-pointer"
               >
                 <span>↺ Reset</span>
               </button>
@@ -56,10 +73,34 @@ export const Header: React.FC<HeaderProps> = ({
               <span><strong>Marwari · Rural Jodhpur</strong> (देवनागरी)</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-100 px-2.5 py-1 font-medium text-stone-600">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-              <span>Deterministic Demo Mode</span>
-            </div>
+            {/* AI Status Badge & Mode Switcher */}
+            {isLiveConnected ? (
+              <div className="flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 font-medium text-emerald-900 shadow-2xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600"></span>
+                </span>
+                <span><strong>LIVE AI</strong> (Gemini Connected)</span>
+                {onToggleAiMode && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleAiMode(aiMode === "live" ? "demo" : "live")}
+                    className="ml-1 rounded bg-emerald-200/70 px-1.5 py-0.5 text-[10px] font-mono hover:bg-emerald-300 cursor-pointer"
+                    title="Click to toggle between Live Gemini AI and Deterministic Demo fallback"
+                  >
+                    Mode: {aiMode === "live" ? "Live" : "Fallback"}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div
+                className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-100 px-2.5 py-1 font-medium text-stone-600"
+                title="GEMINI_API_KEY not detected in .env.local. Operating in 100% deterministic fallback demo mode."
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                <span>Deterministic Demo Mode</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

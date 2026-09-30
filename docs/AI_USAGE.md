@@ -1,101 +1,120 @@
-# AI Usage & Provider Architecture
+# AI Usage, Model Integration & Security Architecture
 
-This document explicitly details how intelligence and automation are modeled in the **Cultural Screenplay & Visual Adaptation Studio**, clearly distinguishing between **Deterministic Local Logic** and **Future AI Provider Integrations**.
-
----
-
-## 1. Core Principle: Zero Mock Deception
-
-In this prototype milestone:
-- **No external AI APIs (OpenAI, Anthropic, Gemini, Midjourney, Stable Diffusion, FLUX) are invoked.**
-- **No paid services, network endpoints, or API keys are required or configured.**
-- **The system does NOT pretend mock outputs are live neural generation.**
-- All workflow stages operate via **deterministic local providers** implementing formal provider interfaces.
-- The product is 100% usable offline and in local development environments.
+This document details the AI architecture, model selection, prompt engineering, structured validation, and security protocols in the **Cultural Screenplay & Visual Adaptation Studio**.
 
 ---
 
-## 2. Where AI Would Be Useful in Production
+## 1. Overview & Dual-Engine Architecture
 
-In a full-scale enterprise production environment, generative AI and foundation models would provide immense value across five key areas:
+The studio implements a **Dual-Engine Architecture** that pairs live Google Gemini foundation models with a 100% deterministic local fallback engine:
 
-### 1. Screenplay Understanding
-- **Multimodal Document AI / Vision LLMs:** Ingesting complex Final Draft (`.fdx`), Fountain, or scanned PDF screenplays with irregular margins, dual-column dialogue, and non-standard sluglines.
-- **Narrative Arc Extraction:** Inferring subtext, emotional tension curves, and thematic stakes that standard regex parsers cannot detect.
+1. **Live Gemini Engine (`@google/genai`):** Activated automatically whenever `GEMINI_API_KEY` is present in the server environment. Provides LLM-powered cultural adaptation and 35mm cinematic concept image synthesis.
+2. **Deterministic Fallback Engine:** Operates when `GEMINI_API_KEY` is omitted or when an evaluator desires an offline, zero-network, 100% deterministic walkthrough.
 
-### 2. Cultural Adaptation
-- **Deep Cultural Knowledge:** Mapping regional folklore, historical caste and community nuances, local legal frameworks, and agricultural calendars.
-- **Contextual Equivalence:** Suggesting cultural equivalents for idioms rather than literal translations (e.g. recognizing that an urban bank foreclosure maps to ancestral *kudak* debt obligations).
-
-### 3. Dialogue Adaptation
-- **Linguistic Prosody & Cadence:** Generating natural spoken dialogue in low-resource Indic dialects (such as Marwari, Braj, Maithili, Awadhi) that preserves the speaker's age, social status, and emotional state.
-- **Phonetic & Dialect Nuances:** Accounting for vocal inflections and regional colloquialisms that are difficult to encode purely in hand-written rule sets.
-
-### 4. Visual Prompt Generation
-- **Cinematic Vision Models:** Translating narrative scene descriptions into highly specific camera packages (lens focal length, anamorphic bokeh, lighting angles, color temperatures) optimized for diffusion models.
-- **Style Coherence:** Ensuring that generated concept art reflects accurate period-specific architecture (e.g. Jodhpur yellow sandstone carved arches) and authentic attire.
-
-### 5. Continuity Reasoning
-- **Cross-Scene Semantic Auditing:** Tracking subtle narrative states (injuries, emotional baggage, costume changes between scenes separated by time jumps) across 120-page screenplays.
-- **Multimodal Consistency:** Auditing visual frames to ensure character facial likeness and spatial geography remain identical from scene to scene.
+Both engines implement the identical domain contracts (`TextAdaptationProvider` and visual generation specifications), ensuring zero frontend disruption and strict behavioral parity.
 
 ---
 
-## 3. What Is Deterministic in the Current Prototype
+## 2. Models Used
 
-Every capability in the current studio milestone is implemented using **robust, deterministic local logic**:
-
-1. **Screenplay Parsing:** State-machine parser in `src/lib/parser/screenplayParser.ts` using regular expressions to segment scene headings, character cues, dialogues, parentheticals, and action lines.
-2. **Canonical Identifiers:** Deterministic generator assigning stable, zero-padded IDs (`SCN-001`, `CHR-001`, `LOC-001`, `PROP-001`, `ADP-001`, `VIS-001`, `CON-001`) guaranteeing multi-pass stability.
-3. **Approval Filtering:** Pure boolean logic filtering in `ApprovalPanel.tsx` and `adaptScreenplay.ts` that strictly excludes unapproved or rejected suggestions from downstream generation.
-4. **Continuity Verification:** Rule engine in `src/lib/continuity/continuityChecker.ts` running 10+ programmatic assertions covering entity presence, prop persistence, and chronological ordering.
-5. **Production Exports:** Pure client-side formatting and file generation in `src/lib/export/exportService.ts` creating `.txt` and `.json` artifacts without external dependencies.
-6. **Demo Adaptation Provider:** `DemoAdaptationProvider.ts` applying 14 curated Marwari transformation rules across all 8 cultural dimensions.
-7. **Demo Visual Provider:** `DemoImageGenerationProvider.ts` generating structured 35mm prompt strings and cinematic parameters through template synthesis.
+| Capability | Model | Provider | Role |
+|---|---|---|---|
+| **Cultural Adaptation Plan** | `gemini-2.5-flash` (configurable via `GEMINI_TEXT_MODEL`) | Google Gemini API via `@google/genai` | Ingests parsed screenplay entities and generates structured adaptation suggestions across 8 cultural dimensions. |
+| **Adapted Screenplay Synthesis** | `gemini-2.5-flash` (configurable via `GEMINI_TEXT_MODEL`) | Google Gemini API via `@google/genai` | Applies approved cultural decisions to synthesize authentic Marwari dialogue in Devanagari script side-by-side with original text. |
+| **Visual Production Pack** | `gemini-3.1-flash-image` (configurable via `GEMINI_IMAGE_MODEL`) | Google Gemini API via `@google/genai` | Synthesizes photorealistic 35mm anamorphic scene looks and character portraits from approved canonical production metadata. |
 
 ---
 
-## 4. Why Provider Abstraction Exists
+## 3. Deterministic vs. Generative Components
 
-The studio architecture enforces strict separation of concerns through TypeScript interfaces:
-
-```typescript
-// src/lib/adaptation/types.ts
-export interface TextAdaptationProvider {
-  providerId: string;
-  name: string;
-  generatePlan(screenplay: Screenplay, profile: CulturalProfile): Promise<AdaptationPlan>;
-  generateAdaptation(
-    screenplay: Screenplay,
-    plan: AdaptationPlan,
-    decisions: Record<string, AdaptationDecision>
-  ): Promise<AdaptedScreenplay>;
-}
-
-// src/lib/visuals/types.ts
-export interface ImageGenerationProvider {
-  providerId: string;
-  name: string;
-  generateScenePrompt(scene: AdaptedScene, originalScene?: Scene): Promise<SceneVisualPromptPackage>;
-  generateCharacterPrompt(character: Character, scene: AdaptedScene): Promise<CharacterVisualPromptPackage>;
-  generateAll(adaptedScreenplay: AdaptedScreenplay, originalScreenplay: Screenplay): Promise<VisualPackages>;
-}
-```
-
-### Benefits of This Architecture:
-- **Pluggability:** Teams can swap the local `DemoAdaptationProvider` for a cloud-hosted `GeminiAdaptationProvider` or `ClaudeAdaptationProvider` simply by passing a different instance into the orchestration controller.
-- **Zero Frontend Disruption:** The Next.js UI, approval panels, diff viewers, and export services remain completely unchanged when switching between demo and neural backends.
-- **Testability:** Unit tests run in milliseconds using the deterministic provider without making costly or flaky network calls.
+| Pipeline Component | Mechanism | Rationale |
+|---|---|---|
+| **Screenplay Parser** | **Deterministic** (Regex & State Machine) | Screenplay syntax (sluglines, character names, parentheticals) requires deterministic boundary parsing with guaranteed zero hallucination. |
+| **Canonical Identity Mapping** | **Deterministic** (`SCN-xxx`, `CHR-xxx`, `PROP-xxx`) | Identifiers must remain immutable across multi-pass parsing, script edits, and downstream exports. |
+| **Cultural Adaptation Plan** | **Generative** (`gemini-2.5-flash`) | Contextual cultural nuance (metaphors, caste/familial hierarchies, dialect markers) benefits from expansive linguistic pretraining. |
+| **Approval Filtering** | **Deterministic** (Boolean Gate) | Human decisions are strictly authoritative. AI cannot override or un-reject human editorial decisions. |
+| **Adapted Screenplay** | **Generative** (`gemini-2.5-flash`) | Re-articulates emotional cadence and spoken Marwari in Devanagari while adhering strictly to approved suggestions. |
+| **Visual Prompt Engineering** | **Deterministic Template Synthesis** | 35mm camera, lens, lighting, and continuity constraints are programmatically assembled from canonical scene/character data. |
+| **Image Generation** | **Generative** (`gemini-3.1-flash-image`) | Diffusion/multimodal image synthesis materializes visual concept art directly into the workspace. |
+| **Continuity Verification** | **Deterministic** (Rule Engine) | Consistency checks (character retention, costume consistency, prop persistence) require verifiable boolean assertions. |
+| **Export Packaging** | **Deterministic** (Client-side formatters) | Production scripts, JSON archives, and audit text files must be reproducible and bit-perfect. |
 
 ---
 
-## 5. Human-in-the-Loop Validation
+## 4. Cultural Adaptation Generation
 
-Even when real AI models are introduced, **cultural adaptation cannot be completely automated**:
-- Regional dialects and cultural customs have deep community sensitivities.
-- AI models are susceptible to regional stereotyping or archaic caricature.
-- The studio enforces a **Strict Human Approval Gate**:
-  - AI suggestions are treated as *proposals*, not final text.
-  - Showrunners and native-speaker dialectologists can approve, reject, or rewrite suggestions.
-  - The pipeline pauses execution until all pending decisions are reviewed.
-  - Production scripts reflect only verified human editorial decisions.
+The cultural adaptation engine receives:
+- Canonical screenplay entities (scenes, characters, dialogue blocks, locations, props, costumes)
+- Selected Cultural Profile (target culture, dialect, script, geographic region, socio-cultural notes)
+- Assignment constraints:
+  - Preserve central dramatic conflict, emotional stakes, and scene intent.
+  - Never alter character relationships or delete scenes.
+  - Cover all 8 canonical dimensions:
+    1. *Dialogue/Register*
+    2. *Greeting/Address*
+    3. *Environment*
+    4. *Costume*
+    5. *Props*
+    6. *Food*
+    7. *Social context*
+    8. *Local terminology*
+
+### Structured Output & Validation
+The engine requests `application/json` output and rigorously validates the returned structure:
+- Every suggestion is mapped to a sequential canonical ID (`ADP-001`, `ADP-002`, ...).
+- Category strings are validated against the 8 known dimensions.
+- Target scene IDs (`SCN-xxx`) are validated against parsed scenes.
+- Devanagari output (`devanagariProposed`) is verified for non-empty content.
+- If Gemini returns malformed data, an informative error is returned to the user without corrupting workspace state, enabling instant retry.
+
+---
+
+## 5. Visual Generation & Prompt Construction
+
+To avoid vague or ungrounded image prompts, the studio constructs prompts directly from approved canonical production records:
+- **Character Concept Portraits:** Prompt combines character canonical ID, age descriptor, physical description, costume specifications, setting context, 35mm lens package, and lighting notes.
+- **Scene Concept Art:** Prompt combines scene heading (`adaptedHeading`), location architecture (yellow sandstone haveli, dry baori), character placement, costume descriptions, atmospheric lighting (*गोधूलि वेला* / dusk light), and continuity constraints.
+
+### Response Handling & Session Storage
+- Image data is returned from the server as Base64 Data URLs (`data:image/jpeg;base64,...`).
+- Images are held in the client React state session, preventing disk clutter and avoiding unnecessary server-side storage bloat.
+- The UI exposes both batch generation ("Generate All AI Visuals") with live progress indicators (`Generating 1 of N`) and individual on-demand generation ("Generate with Gemini" / "Regenerate") on each concept card.
+
+---
+
+## 6. Strict Human Approval Gate
+
+Visual generation and final screenplay synthesis **CANNOT** be triggered until the human approval gate is satisfied:
+1. **Client-Side Enforcement:** The UI disables generation buttons and displays an active warning banner if any cultural suggestions remain in `"pending"` status.
+2. **Server-Side API Boundary Enforcement:**
+   - `/api/adapt/screenplay` inspects the request payload and rejects with HTTP `400 Bad Request` (`APPROVAL_GATE_LOCKED`) if pending suggestions exist.
+   - `/api/visuals/packages` rejects with HTTP `400 Bad Request` (`APPROVAL_GATE_REQUIRED`) if called without an authentic, approved adapted screenplay. In turn, `/api/visuals/generate-image` executes on-demand synthesis for prompt packages produced downstream by the approval-gated package engine.
+
+---
+
+## 7. API Key Security & Server-Only Abstraction
+
+- **Zero Client Exposure:** The client bundle contains **NO** API keys. `NEXT_PUBLIC_GEMINI_API_KEY` is deliberately avoided.
+- **`server-only` Protection:** The Gemini client (`src/lib/gemini/client.ts`), adaptation provider (`GeminiAdaptationProvider.ts`), and image provider (`GeminiImageGenerationProvider.ts`) are protected with:
+  ```typescript
+  import "server-only";
+  ```
+  Any accidental attempt to import these files into client components will fail at compile time.
+- **API Boundary Sanitization:** Server API routes catch upstream Gemini exceptions and return sanitized messages, preventing stack traces, environment variables, or API keys from ever leaking to the browser.
+- **Git Protection:** `.gitignore` excludes `.env*` files with an explicit exception only for `.env.example`.
+
+---
+
+## 8. Failure Handling & Resilience
+
+1. **Missing API Key:** When `GEMINI_API_KEY` is not present, `/api/status` reports `configured: false`, the header displays a clear "Deterministic Demo Mode" badge, and the application seamlessly routes through local deterministic providers.
+2. **Rate Limits & Quota Exhaustion:** If an individual image or dialogue call encounters a Gemini rate limit, the API returns a descriptive error message. For images, the prompt card remains fully intact and displays an inline retry button, allowing single-item recovery without failing the entire visual board.
+3. **Screenplay Adaptation Fallback:** If the LLM generates an unparseable response for adapted screenplay text, `GeminiAdaptationProvider` falls back gracefully to `adaptScreenplay.ts`, guaranteeing that the user's workflow is never permanently blocked.
+
+---
+
+## 9. Known AI Limitations
+
+1. **Regional Nuance Sensitivity:** Marwari has multiple regional dialects (Jodhpuri, Shekhawati, Bikaneri, Thali). While Gemini 2.5 Flash produces strong Devanagari Marwari, native-speaker review remains essential for nuanced community dialogue.
+2. **Multi-Turn Visual Consistency:** Zero-shot image models cannot guarantee 100% pixel-perfect facial geometry across multiple scene angles without LoRA training or image-to-image reference conditioning.
+3. **In-Memory State Scope:** Generated images and plans persist within the current browser session. Refreshing the browser resets the workspace unless the user re-loads the project bundle.

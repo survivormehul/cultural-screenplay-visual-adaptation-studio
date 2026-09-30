@@ -1,31 +1,34 @@
-# Sample Pipeline Output Artifact
+# Sample Pipeline Output Artifacts
 
-This document provides a static, representative end-to-end trace of a single scene as it moves through every stage of the **Cultural Screenplay & Visual Adaptation Studio** pipeline.
+This document provides a static, representative end-to-end trace of a scene as it moves through every stage of the **Cultural Screenplay & Visual Adaptation Studio** pipeline, clearly distinguishing between:
+1. **Deterministic Structured Output** (Parser, Canonical Graph, Continuity Audit)
+2. **Gemini-Generated Adaptation** (`gemini-2.5-flash` Cultural Plan & Devanagari Screenplay)
+3. **Gemini-Generated Visual Assets** (`gemini-3.1-flash-image` Visual Production Pack)
 
 ---
 
 ## Complete Pipeline Trace
 
-```
-Original Scene
+```text
+Original Screenplay Input
       │
       ▼
-Extracted Structure
+1. Deterministic Structure Extraction (Regex & State Machine)
       │
       ▼
-Cultural Suggestion
+2. Gemini Cultural Adaptation Plan (Gemini 2.5 Flash)
       │
       ▼
-Human Decision
+3. Human Decision Log (Approval Gate Audit)
       │
       ▼
-Adapted Screenplay Output
+4. Gemini Adapted Screenplay Output (Devanagari Marwari)
       │
       ▼
-Visual Prompt Package
+5. Gemini Visual Production Pack (Gemini 3.1 Flash Image · 35mm)
       │
       ▼
-Continuity Result
+6. Deterministic Continuity Verification (Rule Engine)
 ```
 
 ---
@@ -53,7 +56,9 @@ Because there's nothing left in it, Father. The government geologists told you t
 
 ---
 
-### 2. Extracted Structure (Canonical Domain Model)
+### 2. Deterministic Structure Extraction (Canonical Domain Model)
+
+*Engine: Deterministic State-Machine Parser (`src/lib/parser/screenplayParser.ts`)*
 
 ```json
 {
@@ -87,7 +92,9 @@ Because there's nothing left in it, Father. The government geologists told you t
 
 ---
 
-### 3. Cultural Adaptation Suggestions
+### 3. Gemini Cultural Adaptation Suggestions
+
+*Engine: Generative LLM (`gemini-2.5-flash` via `@google/genai`)*
 
 ```json
 [
@@ -98,8 +105,19 @@ Because there's nothing left in it, Father. The government geologists told you t
     "original": "Father",
     "proposed": "बाबोसा (Babosa / Revered Father)",
     "devanagariProposed": "बाबोसा",
-    "rationale": "Contextual adaptation suggestion: In rural Marwar, an elder Rajput or village patriarch is addressed with the reverent familial title 'Babosa' rather than formal English 'Father'. Requires native-speaker/editorial validation.",
+    "rationale": "In rural Marwar, elder Rajput patriarchs are reverently addressed with the familial title 'Babosa' rather than formal English 'Father'.",
     "confidence": 0.98,
+    "status": "pending"
+  },
+  {
+    "id": "ADP-002",
+    "sceneId": "SCN-001",
+    "category": "Greeting/Address",
+    "original": "Vikram",
+    "proposed": "विक्रम सा (Vikram-sa)",
+    "devanagariProposed": "विक्रम सा",
+    "rationale": "Honorific suffix '-सा' appended even when addressing adult sons in traditional rural family settings to maintain conversational dignity.",
+    "confidence": 0.92,
     "status": "pending"
   },
   {
@@ -109,7 +127,7 @@ Because there's nothing left in it, Father. The government geologists told you t
     "original": "Because there's nothing left in it, Father.",
     "proposed": "काईं कोनी बच्यो इणमें, बाबोसा।",
     "devanagariProposed": "काईं कोनी बच्यो इणमें, बाबोसा।",
-    "rationale": "Contextual adaptation suggestion: Shifts urban English dialogue to rural Marwari colloquial negative 'काईं कोनी बच्यो' preserving the despondent tone. Requires native-speaker/editorial validation.",
+    "rationale": "Shifts urban English dialogue to rural Marwari colloquial negative 'काईं कोनी बच्यो' preserving the despondent tone.",
     "confidence": 0.95,
     "status": "pending"
   },
@@ -120,7 +138,7 @@ Because there's nothing left in it, Father. The government geologists told you t
     "original": "crisp khadi kurta",
     "proposed": "Handspun Angarkha with saffron-edged Safa (केसरिया पाग) and silver ear-studs (मुरकी)",
     "devanagariProposed": "अंगरखा, केसरिया पाग व मुरकी",
-    "rationale": "Contextual adaptation suggestion: Matches the traditional patriarch silhouette in rural Jodhpur where safa color indicates elder lineage authority. Requires native-speaker/editorial validation.",
+    "rationale": "Matches the traditional patriarch silhouette in rural Jodhpur where safa color indicates elder lineage authority.",
     "confidence": 0.94,
     "status": "pending"
   }
@@ -129,7 +147,9 @@ Because there's nothing left in it, Father. The government geologists told you t
 
 ---
 
-### 4. Human Decision (Approval Gate Log)
+### 4. Human Decision Log (Approval Gate Audit)
+
+*Engine: Editorial Governance Filter (`src/components/ApprovalPanel.tsx`)*
 
 ```json
 {
@@ -138,6 +158,12 @@ Because there's nothing left in it, Father. The government geologists told you t
     "status": "approved",
     "decidedAt": "2026-09-30T17:20:00.000Z",
     "note": "Approved standard Marwari filial address"
+  },
+  "ADP-002": {
+    "suggestionId": "ADP-002",
+    "status": "approved",
+    "decidedAt": "2026-09-30T17:20:02.000Z",
+    "note": "Approved respectful filial suffix -sa"
   },
   "ADP-003": {
     "suggestionId": "ADP-003",
@@ -157,7 +183,9 @@ Because there's nothing left in it, Father. The government geologists told you t
 
 ---
 
-### 5. Adapted Screenplay Output (Devanagari Marwari)
+### 5. Gemini Adapted Screenplay Output (Devanagari Marwari)
+
+*Engine: Generative LLM (`gemini-2.5-flash` via `/api/adapt/screenplay`)*
 
 ```screenplay
 --------------------------------------------------------------------------------
@@ -188,42 +216,39 @@ VIKRAM (CHR-001) (without looking back):
 
 ---
 
-### 6. Visual Concept Prompt Package
+### 6. Gemini Visual Production Pack & Image Asset (Sample Schema)
+
+*Engine: Gemini Image Model (`gemini-3.1-flash-image` via `/api/visuals/*`)*  
+*(Note: Visual prompt synthesis and package assembly are live. Live image generation requires an active Google AI Studio billing/quota tier; free-tier requests encounter Google's 429 RESOURCE_EXHAUSTED / limit: 0; see [`docs/LIMITATIONS.md`](LIMITATIONS.md).)*
 
 ```json
 {
   "visualId": "VIS-SCN-001",
   "sceneId": "SCN-001",
-  "subject": "Dramatic exterior standoff between Vikram (dusty jeans, city jacket) and his father Thakur Bhawani Singh (elderly patriarch in saffron safa and handspun angarkha) by an ancestral stone stepwell",
-  "environment": "Ancestral sandstone compound, dry Thar desert basin, Jodhpur rural outskirts",
-  "architecture": "Jodhpur yellow sandstone carved arches, weathered stone well parapet, dry thorny acacia perimeter",
-  "costume": "Bhawani in handspun Angarkha, saffron-edged Safa (पाग), silver ear-studs (मुरकी); Vikram in dust-streaked western denim and heavy boots",
-  "props": "Brass water lota reflecting dusk light, dust-caked Royal Enfield motorcycle",
-  "lighting": "Godhuli Bela (गोधूलि वेला) — low raking copper desert twilight with long deep-blue shadows",
-  "mood": "Stark emotional gravity, filial friction, ancestral dignity under existential drought",
-  "camera": "Arri Alexa LF, Cooke Anamorphic/i Full Frame Plus 40mm T2.3",
-  "framing": "Wide establishing angle, 2.39:1 cinemascope, low ground perspective accentuating dry cracked earth in foreground",
-  "culturalConstraints": [
-    "Patriarch safa must be authentically tied in Marwari/Jodhpur style, not ceremonial Bollywood turban",
-    "Brass lota held with traditional ritual care, resting on parapet stone",
-    "Sandstone haveli facade must show characteristic desert wind erosion and carved brackets"
-  ],
-  "continuityConstraints": [
-    "Bhawani holds brass lota in SCN-001; must carry same lota into SCN-002 night veranda",
-    "Vikram wears denim jacket with dust patterns consistent across SCN-001 and SCN-002"
-  ],
-  "finalPrompt": "Cinematic 35mm film still, 2.39:1 cinemascope aspect ratio. EXT. THAR DESERT STEPWELL OUTSKIRTS - DUSK (गोधूलि वेला). Dramatic wide confrontation between elder Rajput patriarch Thakur Bhawani Singh (70s, weathered regal face, handspun beige Angarkha, tightly bound saffron-edged Safa turban, silver murki ear-studs) holding a traditional brass water vessel, and his urbanized son Vikram (40s, dust-stained denim shirt, weary city posture) standing near a vintage dust-caked Enfield motorcycle. Foreground shows dry cracked soil and deep red-yellow sandstone well parapet. Background features open Thar scrubland under a vibrant copper-to-cobalt dusk sky. Shot on Arri Alexa LF with Cooke Anamorphic 40mm lens, natural desert twilight, ultra-detailed architectural texture, master cinematography --ar 21:9 --v 6.1 --style raw"
+  "subject": "Dramatic confrontation between elder patriarch Bhawani Singh and returning son Vikram by an ancestral stepwell",
+  "environment": "Rural Thar desert fringe near Jodhpur, cracked arid clay soil, distant thorny Khejri trees",
+  "architecture": "Weathered golden-yellow sandstone haveli verandah (पोल), dry subterranean baori (stepwell)",
+  "costume": "Bhawani in handspun off-white Angarkha and saffron safa; Vikram in dusty denim workshirt",
+  "props": "Ornate brass lota resting on parapet stone, dust-caked Royal Enfield with sacred moli thread",
+  "lighting": "Dusk atmospheric light (गोधूलि वेला), low-angled copper sun rays casting elongated shadows",
+  "camera": "Cinematic wide angle, 35mm anamorphic, eye-level with the stepwell parapet",
+  "finalPrompt": "Cinematic film still, 35mm anamorphic. EXT. THAR DESERT STEPWELL - DUSK. In a rural Rajasthani hamlet near Jodhpur, an elderly patriarch (70s, sharp features, crisp off-white Angarkha, saffron safa turban) stands firm on a yellow sandstone stepwell parapet. Across from him, his estranged son (40s, dusty western denim, world-weary) leans against a vintage motorcycle. Low golden hour dusk sun, dust particles gleaming in warm amber light, ancient dry stone baori, deep cultural gravitas, photorealistic cinematic lighting, Arri Alexa Mini LF, 8k resolution.",
+  "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD...",
+  "imageGeneratedAt": "2026-09-30T17:21:40.000Z",
+  "isLiveAiGenerated": true
 }
 ```
 
 ---
 
-### 7. Continuity Verification Result
+### 7. Deterministic Continuity Verification
+
+*Engine: Automated Rule Engine (`src/lib/continuity/continuityChecker.ts`)*
 
 ```json
 {
   "reportId": "CON-REP-1727710000",
-  "timestamp": "2026-09-30T17:21:00.000Z",
+  "timestamp": "2026-09-30T17:22:00.000Z",
   "totalChecks": 10,
   "passed": 9,
   "warnings": 1,
@@ -233,7 +258,7 @@ VIKRAM (CHR-001) (without looking back):
       "id": "CON-001",
       "category": "Character continuity",
       "sceneOrEntityId": "CHR-001",
-      "status": "Verified",
+      "status": "PASSED",
       "severity": "PASS",
       "message": "Character VIKRAM (CHR-001) successfully preserved across all adapted scenes."
     },
@@ -241,7 +266,7 @@ VIKRAM (CHR-001) (without looking back):
       "id": "CON-002",
       "category": "Character continuity",
       "sceneOrEntityId": "CHR-002",
-      "status": "Verified",
+      "status": "PASSED",
       "severity": "PASS",
       "message": "Character THAKUR BHAWANI SINGH (CHR-002) successfully preserved across all adapted scenes."
     },
@@ -249,7 +274,7 @@ VIKRAM (CHR-001) (without looking back):
       "id": "CON-003",
       "category": "Prop continuity",
       "sceneOrEntityId": "PROP-003",
-      "status": "Verified",
+      "status": "PASSED",
       "severity": "PASS",
       "message": "Key prop 'brass lota' persists from SCN-001 (exterior stepwell) into SCN-002 (interior veranda takhat)."
     },
@@ -257,15 +282,15 @@ VIKRAM (CHR-001) (without looking back):
       "id": "CON-004",
       "category": "Scene ordering",
       "sceneOrEntityId": "SCN-001",
-      "status": "Verified",
+      "status": "PASSED",
       "severity": "PASS",
       "message": "Chronological progression intact: SCN-001 (Dusk) -> SCN-002 (Night) -> SCN-003 (Dawn)."
     },
     {
       "id": "CON-005",
-      "category": "Dialect consistency",
+      "category": "Adaptation continuity",
       "sceneOrEntityId": "ADP-001",
-      "status": "Flagged",
+      "status": "FLAGGED",
       "severity": "WARNING",
       "message": "Term 'बाबोसा' used in SCN-001 and SCN-002; verify register remains uniform across remaining script lines."
     }

@@ -115,6 +115,8 @@ export interface AdaptationPlan {
   suggestions: AdaptationSuggestion[];
   totalSuggestions: number;
   generatedAt: string;
+  provider?: string;
+  isLiveAiGenerated?: boolean;
 }
 
 export interface AdaptedDialogue {
@@ -149,6 +151,7 @@ export interface AdaptedScreenplay {
   totalScenes: number;
   totalApprovedAdaptations: number;
   summary: string;
+  isLiveAiGenerated?: boolean;
 }
 
 export interface SceneVisualPromptPackage {
@@ -166,6 +169,9 @@ export interface SceneVisualPromptPackage {
   culturalConstraints: string[];
   continuityConstraints: string[];
   finalPrompt: string;
+  imageUrl?: string;
+  imageGeneratedAt?: string;
+  imageError?: string;
 }
 
 export interface CharacterVisualPromptPackage {
@@ -178,6 +184,9 @@ export interface CharacterVisualPromptPackage {
   environment: string;
   continuityRequirements: string[];
   finalPrompt: string;
+  imageUrl?: string;
+  imageGeneratedAt?: string;
+  imageError?: string;
 }
 
 export interface VisualPackages {
@@ -185,6 +194,7 @@ export interface VisualPackages {
   characterPackages: CharacterVisualPromptPackage[];
   generatedAt: string;
   provider: string;
+  isLiveAiGenerated?: boolean;
 }
 
 export type ContinuityCategory =
